@@ -2,10 +2,12 @@ package com.luizink.apps.infograbber;
 
 import com.jaunt.*;
 import com.jaunt.component.Form;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.GenericXmlApplicationContext;
+import org.springframework.data.mongodb.core.MongoOperations;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Created by maurice on 12/15/2015.
@@ -13,11 +15,10 @@ import java.util.List;
 public class InfoGrabber {
 
     public InfoGrabber() throws JauntException,java.io.UnsupportedEncodingException {
-        this.readSite("url");
+        this.readSite("https://www.bva-auctions.com/","apple");
     }
 
     public static void main(String args[]) throws JauntException,java.io.UnsupportedEncodingException {
-        System.out.println("Hello from InfoGrabber");
         InfoGrabber infoGrabber = new InfoGrabber();
     }
 
@@ -27,7 +28,7 @@ public class InfoGrabber {
 
         try {
             for (Element page : pages) {
-                String href = pages.findFirst("<a").getAt("href");
+                String href = page.findFirst("<a").getAt("href");
                 href = href.replaceAll("&amp;","&");
                 hrefList.add(href);
             }
@@ -47,39 +48,54 @@ public class InfoGrabber {
             int eCount=0;
             LotItem lotItem = new LotItem();
             for(Element attribute : lotAttributes) {
-
+                String aText = attribute.getText();
+                aText = aText.trim(); // Most values are surrounded by tabs, remove those.
                 switch(eCount) {
-                    case 0: {
-                        lotItem.setId(attribute.getText());
-                    }
                     case 1: {
-                        lotItem.setDescription(attribute.getText());
+                        lotItem.setId(aText);
                     }
                     case 2: {
-                        lotItem.setOffers(attribute.getText());
+                        try {
+                            Element titleElement = attribute.findFirst("<a");
+                            String title = titleElement.getText();
+                            String href = titleElement.getAt("href");
+                            lotItem.setTitle(title);
+                            lotItem.setHref(href);
+                        }catch(com.jaunt.NotFound ex) {
+                            lotItem.setTitle("Not found");
+                        }
+                        lotItem.setDescription(aText);
                     }
                     case 3: {
-                        lotItem.setLastOffer(attribute.getText());
+                        lotItem.setOffers(aText);
                     }
                     case 4: {
-                        lotItem.setClosingDate(attribute.getText());
+                        lotItem.setLastOffer(aText);
+                    }
+                    case 5: {
+                        lotItem.setClosingDate(aText);
                     }
                 }
                 eCount++;
             }
-            lotItems.add(lotItem);
+            if (lotItem.getId() != null) {
+                lotItems.add(lotItem);
+            }
         }
         return lotItems.toArray(new LotItem[lotItems.size()]);
     }
 
-    public String readSite(String url) throws JauntException,java.io.UnsupportedEncodingException {
+    public String readSite(String url, String searchQuery) throws JauntException,java.io.UnsupportedEncodingException {
+        ApplicationContext ctx = new GenericXmlApplicationContext("SpringConfig.xml");
+        MongoOperations mongoOperation = (MongoOperations)ctx.getBean("mongoTemplate");
+
         ArrayList<LotItem> lotItems = new ArrayList<LotItem>();
 
         UserAgent userAgent = new UserAgent();
-        userAgent.settings.autoSaveAsHTML = true;
-        userAgent.settings.showHeaders = true;
-        userAgent.visit("https://www.bva-auctions.com");       //visit google
-        userAgent.doc.apply("boek");
+        userAgent.settings.autoSaveAsHTML = false;
+        userAgent.settings.showHeaders = false;
+        userAgent.visit(url);
+        userAgent.doc.apply(searchQuery);
         Form form = userAgent.doc.getActiveForm();
         form.submit();
 
@@ -90,10 +106,12 @@ public class InfoGrabber {
         Collections.addAll(lotItems, getLotItems(userAgent.doc));
         //if there are more pages, get those results
         for(int i=0;i<pages.length;i++) {
-            System.out.println(pages[i]);
             userAgent.visit(pages[i]);
             //System.out.print(userAgent.getSource());
             Collections.addAll(lotItems, getLotItems(userAgent.doc));
+        }
+        for (LotItem item : lotItems) {
+            mongoOperation.save(item);
         }
         System.out.println(lotItems.size());
 
