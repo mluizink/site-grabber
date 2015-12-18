@@ -5,9 +5,13 @@ import com.jaunt.component.Form;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by maurice on 12/15/2015.
@@ -41,12 +45,21 @@ public class InfoGrabber {
 
     public LotItem[] getLotItems(Document doc) {
         ArrayList<LotItem> lotItems = new ArrayList<LotItem>();
+        String searchString = "enpty";
+        //Retrieve search subject from query.
+
+        try {
+            searchString = doc.findFirst("<input id=\"searchbox\"").getAt("value");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         Elements lots = doc.findEvery("<tr>");
         for (Element lot : lots) {
             Elements lotAttributes = lot.findEvery("<td>");
             int eCount=0;
             LotItem lotItem = new LotItem();
+            lotItem.setSearchSource(searchString);
             for(Element attribute : lotAttributes) {
                 String aText = attribute.getText();
                 aText = aText.trim(); // Most values are surrounded by tabs, remove those.
@@ -86,11 +99,12 @@ public class InfoGrabber {
     }
 
     public String readSite(String url, String searchQuery) throws JauntException,java.io.UnsupportedEncodingException {
-        ApplicationContext ctx = new GenericXmlApplicationContext("SpringConfig.xml");
-        MongoOperations mongoOperation = (MongoOperations)ctx.getBean("mongoTemplate");
+
+        LotItemsQueryManager queryManager = new LotItemsQueryManager();
 
         ArrayList<LotItem> lotItems = new ArrayList<LotItem>();
 
+        /* SEARCH AND STORE DISABLED
         UserAgent userAgent = new UserAgent();
         userAgent.settings.autoSaveAsHTML = false;
         userAgent.settings.showHeaders = false;
@@ -110,10 +124,24 @@ public class InfoGrabber {
             //System.out.print(userAgent.getSource());
             Collections.addAll(lotItems, getLotItems(userAgent.doc));
         }
-        for (LotItem item : lotItems) {
-            mongoOperation.save(item);
-        }
+        queryManager.SaveCollection(lotItems);
+
         System.out.println(lotItems.size());
+        */
+
+        //Search and retrieve.
+        //Query searchCollection = new Query(Criteria.where("searchSource").is("apple"));
+
+        Calendar toDate = Calendar.getInstance();
+        toDate.add(Calendar.HOUR, 8);
+        List<LotItem> resultLotItems = queryManager.findBySubjectAndClosingDate("apple", toDate.getTime());
+
+        for(LotItem lotItem : resultLotItems) {
+            System.out.println(lotItem.getName() + " " + lotItem.getClosingDate() + " " + lotItem.getHref());
+        }
+
+        System.out.println("result: " + resultLotItems.size());
+
 
         return "success";
     }

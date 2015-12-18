@@ -27,10 +27,15 @@ public class LotItem {
 
     public void setId(String id) {
         this.id = id;
-        String aId = id.substring(0,id.indexOf("-"));
-        String iId = id.substring(id.indexOf("-")+1);
-        setAuctionId(aId);
-        setItemId(iId);
+        if (id != null && id.indexOf("-") > 0) {
+            String aId = id.substring(0, id.indexOf("-"));
+            String iId = id.substring(id.indexOf("-") + 1);
+            setAuctionId(aId);
+            setItemId(iId);
+        } else {
+            setItemId(id);
+            setAuctionId("0");
+        }
     }
 
     public String getDescription() {
