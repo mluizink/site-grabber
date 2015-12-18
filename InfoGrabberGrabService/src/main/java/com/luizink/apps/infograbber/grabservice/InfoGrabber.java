@@ -18,7 +18,7 @@ import java.util.List;
 public class InfoGrabber {
 
     public InfoGrabber() throws JauntException,java.io.UnsupportedEncodingException {
-        this.readSite("https://www.bva-auctions.com/","apple");
+        this.readSite("https://www.bva-auctions.com/","cisco");
     }
 
 

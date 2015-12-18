@@ -3,6 +3,7 @@ package com.luizink.apps.infograbber.restservice;
 import com.jaunt.*;
 import com.luizink.apps.infograbber.data.LotItem;
 import com.luizink.apps.infograbber.data.LotItemsQueryManager;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 
@@ -22,7 +23,8 @@ public class InfoGrabber {
 
 
     public static void main(String args[]) throws JauntException,java.io.UnsupportedEncodingException {
-        InfoGrabber infoGrabber = new InfoGrabber();
+        //InfoGrabber infoGrabber = new InfoGrabber();
+        SpringApplication.run(InfoGrabber.class, args);
     }
 
     public String[] getPageLinks(Document doc) throws java.io.UnsupportedEncodingException {
@@ -103,40 +105,12 @@ public class InfoGrabber {
 
         ArrayList<LotItem> lotItems = new ArrayList<LotItem>();
 
-        /* SEARCH AND STORE DISABLED
-        UserAgent userAgent = new UserAgent();
-        userAgent.settings.autoSaveAsHTML = false;
-        userAgent.settings.showHeaders = false;
-        userAgent.visit(url);
-        userAgent.doc.apply(searchQuery);
-        Form form = userAgent.doc.getActiveForm();
-        form.submit();
-
-        String[] pages = getPageLinks(userAgent.doc);
-
-        System.out.println("pages: " + pages.length);
-
-        Collections.addAll(lotItems, getLotItems(userAgent.doc));
-        //if there are more pages, get those results
-        for(int i=0;i<pages.length;i++) {
-            userAgent.visit(pages[i]);
-            //System.out.print(userAgent.getSource());
-            Collections.addAll(lotItems, getLotItems(userAgent.doc));
-        }
-        queryManager.SaveCollection(lotItems);
-
-        System.out.println(lotItems.size());
-        */
-
-        //Search and retrieve.
-        //Query searchCollection = new Query(Criteria.where("searchSource").is("apple"));
-
         Calendar toDate = Calendar.getInstance();
         toDate.add(Calendar.HOUR, 8);
         List<LotItem> resultLotItems = queryManager.findBySubjectAndClosingDate("apple", toDate.getTime());
 
         for(LotItem lotItem : resultLotItems) {
-            System.out.println(lotItem.getName() + " " + lotItem.getClosingDate() + " " + lotItem.getHref());
+            System.out.println(lotItem.getName() + " " + lotItem.getLastOffer() + " " + lotItem.getClosingDate() + " " + lotItem.getHref());
         }
 
         System.out.println("result: " + resultLotItems.size());
