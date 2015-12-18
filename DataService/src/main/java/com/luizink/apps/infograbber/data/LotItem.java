@@ -1,4 +1,4 @@
-package com.luizink.apps.infograbber;
+package com.luizink.apps.infograbber.data;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

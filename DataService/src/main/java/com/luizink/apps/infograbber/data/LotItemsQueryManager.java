@@ -1,4 +1,4 @@
-package com.luizink.apps.infograbber;
+package com.luizink.apps.infograbber.data;
 
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;

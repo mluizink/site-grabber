@@ -1,4 +1,4 @@
-package com.luizink.apps.infograbber;
+package com.luizink.apps.infograbber.data;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;

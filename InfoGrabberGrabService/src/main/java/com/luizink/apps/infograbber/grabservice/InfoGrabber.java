@@ -1,12 +1,10 @@
-package com.luizink.apps.infograbber;
+package com.luizink.apps.infograbber.grabservice;
 
 import com.jaunt.*;
 import com.jaunt.component.Form;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.GenericXmlApplicationContext;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
+import com.luizink.apps.infograbber.data.LotItem;
+import com.luizink.apps.infograbber.data.LotItemsQueryManager;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,11 +14,13 @@ import java.util.List;
 /**
  * Created by maurice on 12/15/2015.
  */
+@SpringBootApplication
 public class InfoGrabber {
 
     public InfoGrabber() throws JauntException,java.io.UnsupportedEncodingException {
         this.readSite("https://www.bva-auctions.com/","apple");
     }
+
 
     public static void main(String args[]) throws JauntException,java.io.UnsupportedEncodingException {
         InfoGrabber infoGrabber = new InfoGrabber();
@@ -104,7 +104,6 @@ public class InfoGrabber {
 
         ArrayList<LotItem> lotItems = new ArrayList<LotItem>();
 
-        /* SEARCH AND STORE DISABLED
         UserAgent userAgent = new UserAgent();
         userAgent.settings.autoSaveAsHTML = false;
         userAgent.settings.showHeaders = false;
@@ -127,11 +126,10 @@ public class InfoGrabber {
         queryManager.SaveCollection(lotItems);
 
         System.out.println(lotItems.size());
-        */
 
         //Search and retrieve.
         //Query searchCollection = new Query(Criteria.where("searchSource").is("apple"));
-
+/*
         Calendar toDate = Calendar.getInstance();
         toDate.add(Calendar.HOUR, 8);
         List<LotItem> resultLotItems = queryManager.findBySubjectAndClosingDate("apple", toDate.getTime());
@@ -141,7 +139,7 @@ public class InfoGrabber {
         }
 
         System.out.println("result: " + resultLotItems.size());
-
+*/
 
         return "success";
     }
