@@ -1,0 +1,71 @@
+FORMAT: 1A
+HOST: http://auctiongrabber.luizink.com/
+
+# AuctionGrabber
+
+Polls is a simple API allowing consumers to view polls and vote in them.
+
+## Query Auction Items [/items]
+
+### List All Search Results [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+                "title": "Favourite programming language?",
+                "auction_name": "Uitverkoop",
+                "status" : "Active",
+                "bid_amount" : "1000.00",
+                "bid_count" : "1",
+                "published_at": "2015-08-05T08:40:51.620Z",
+                "closed_at" : "2015-08-05T08:40:51.620Z",
+                "opens_at" : "2015-08-05T08:40:51.620Z",
+            }
+        ]
+
+### Create a New Search [POST]
+
+You may create your own question using this action. It takes a JSON
+object containing a question and a collection of answers in the
+form of choices.
+
++ Request (application/json)
+
+        {
+            "question": "Favourite programming language?",
+            "choices": [
+                "Swift",
+                "Python",
+                "Objective-C",
+                "Ruby"
+            ]
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /questions/2
+
+    + Body
+
+            {
+                "question": "Favourite programming language?",
+                "published_at": "2015-08-05T08:40:51.620Z",
+                "choices": [
+                    {
+                        "choice": "Swift",
+                        "votes": 0
+                    }, {
+                        "choice": "Python",
+                        "votes": 0
+                    }, {
+                        "choice": "Objective-C",
+                        "votes": 0
+                    }, {
+                        "choice": "Ruby",
+                        "votes": 0
+                    }
+                ]
+            }
